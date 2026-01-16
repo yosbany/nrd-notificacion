@@ -21,7 +21,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
 
       - name: Verificar variables de entorno
         run: |
@@ -37,8 +36,8 @@ jobs:
             echo "✅ TELEGRAM_CHAT_ID está configurado"
           fi
 
-      - name: Instalar dependencias
-        run: npm install
+      - name: Verificar Node.js
+        run: node --version && npm --version
 
       - name: Ejecutar monitoreo
         env:
