@@ -22,42 +22,69 @@ export async function sendTelegramMessage(message) {
   console.log(`💬 Chat ID: ${chatId}`);
   console.log(`📏 Longitud del mensaje: ${message.length} caracteres`);
 
+  // Payload sin parse_mode para evitar problemas con caracteres especiales
+  const payload = {
+    chat_id: chatId,
+    text: message,
+  };
+
+  console.log(`📋 Payload preparado (chat_id: ${chatId}, message length: ${message.length})`);
+
   try {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: message,
-        parse_mode: 'HTML',
-      }),
+      body: JSON.stringify(payload),
     });
 
-    console.log(`📡 Status HTTP: ${response.status} ${response.statusText}`);
+    const statusText = response.statusText || 'Unknown';
+    console.log(`📡 Status HTTP: ${response.status} ${statusText}`);
+
+    // Leer el cuerpo de la respuesta
+    let responseBody;
+    const contentType = response.headers.get('content-type');
+    
+    if (contentType && contentType.includes('application/json')) {
+      responseBody = await response.json();
+    } else {
+      const textBody = await response.text();
+      console.log(`📄 Response body (text): ${textBody.substring(0, 500)}`);
+      try {
+        responseBody = JSON.parse(textBody);
+      } catch (e) {
+        throw new Error(`Error al parsear respuesta de Telegram: ${textBody}`);
+      }
+    }
+
+    console.log(`📦 Response data:`, JSON.stringify(responseBody).substring(0, 200));
 
     if (!response.ok) {
-      const errorData = await response.text();
-      console.error(`❌ Error en respuesta HTTP: ${errorData}`);
-      throw new Error(`Error al enviar mensaje a Telegram: ${response.status} - ${errorData}`);
+      console.error(`❌ Error HTTP ${response.status}:`, responseBody);
+      const errorMsg = responseBody.description || responseBody.error_code || 'Unknown error';
+      throw new Error(`Error al enviar mensaje a Telegram (HTTP ${response.status}): ${errorMsg}`);
     }
-
-    const result = await response.json();
     
-    if (!result.ok) {
-      console.error(`❌ Error en respuesta de Telegram:`, result);
-      throw new Error(`Error en respuesta de Telegram: ${result.description || 'Unknown error'} (error_code: ${result.error_code || 'N/A'})`);
+    if (!responseBody.ok) {
+      console.error(`❌ Error en respuesta de Telegram:`, responseBody);
+      const errorMsg = responseBody.description || 'Unknown error';
+      const errorCode = responseBody.error_code || 'N/A';
+      throw new Error(`Error en respuesta de Telegram: ${errorMsg} (error_code: ${errorCode})`);
     }
 
-    console.log(`✅ Mensaje enviado correctamente. Message ID: ${result.result?.message_id}`);
-    return result;
+    const messageId = responseBody.result?.message_id || 'N/A';
+    console.log(`✅ Mensaje enviado correctamente. Message ID: ${messageId}`);
+    return responseBody;
   } catch (error) {
     // Si es un error de red o fetch
     if (error.name === 'TypeError' || error.message.includes('fetch')) {
-      throw new Error(`Error de red al conectar con Telegram: ${error.message}`);
+      const detailedError = `Error de red al conectar con Telegram: ${error.message}`;
+      console.error(`❌ ${detailedError}`);
+      throw new Error(detailedError);
     }
-    // Re-lanzar otros errores
+    // Re-lanzar otros errores con más contexto
+    console.error(`❌ Error capturado:`, error);
     throw error;
   }
 }
