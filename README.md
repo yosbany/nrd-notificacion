@@ -4,7 +4,7 @@ Sistema de monitoreo ejecutado en GitHub Actions que envía pings periódicos a 
 
 ## Características
 
-- ✅ Ejecución automática cada 1 minuto via GitHub Actions
+- ✅ Ejecución automática cada 5 minutos via GitHub Actions (programado con cron)
 - ✅ Ejecución manual mediante `workflow_dispatch`
 - ✅ Notificaciones a Telegram con timestamp legible
 - ✅ Logs claros de inicio y fin de ejecución
@@ -65,3 +65,22 @@ Los mensajes enviados a Telegram tienen el formato:
 - El proyecto está diseñado para ejecutarse exclusivamente en GitHub Actions
 - No incluye reglas de negocio por ahora, solo validación de infraestructura
 - El código está preparado para extensión futura con nuevas funcionalidades
+
+## Limitaciones de GitHub Actions Schedule
+
+⚠️ **IMPORTANTE**: GitHub Actions usa scheduling de "mejor esfuerzo" (best effort). Esto significa:
+
+- Los workflows programados **NO garantizan** ejecución puntual
+- Pueden tener retrasos de **5-30 minutos** o más durante alta carga
+- Los intervalos pueden ser **irregulares** (ej: programado cada 5 min, pero ejecuta cada 17, 31, 45 min)
+- Los cron se ejecutan en **UTC**, no en hora local
+- En repos públicos, los workflows se deshabilitan después de 60 días sin actividad
+
+**Ejemplo de comportamiento real observado:**
+- Programado: cada 5 minutos
+- Ejecución real observada: 31 min, 17 min, 8 min, 45 min entre ejecuciones
+
+Si necesitas precisión exacta (cada 5 minutos sin retrasos), considera:
+- Usar un servicio externo (cron en servidor, AWS EventBridge, etc.) que llame a `workflow_dispatch` vía API
+- Usar un repositorio privado (mejor comportamiento de schedules)
+- Usar un runner self-hosted (mejora la ejecución pero no el trigger)
