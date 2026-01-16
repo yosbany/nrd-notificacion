@@ -1,6 +1,8 @@
 name: NRD Monitor
 
 on:
+  push:
+    branches: [main]
   schedule:
     # Ejecutar cada 1 minuto (nota: GitHub Actions mínimo es 5 min en repos gratuitos)
     - cron: '*/1 * * * *'
