@@ -4,7 +4,9 @@ on:
   push:
     branches: [main]
   schedule:
-    # Ejecutar cada 5 minutos
+    # Ejecutar cada 5 minutos (UTC)
+    # Formato: minuto hora día mes día-semana
+    # Ejemplo: */5 * * * * = cada 5 minutos
     - cron: '*/5 * * * *'
   workflow_dispatch:
     # Permitir ejecución manual
@@ -22,6 +24,19 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Información del workflow
+        run: |
+          echo "========================================="
+          echo "🔍 Información del Workflow"
+          echo "========================================="
+          echo "Event: ${{ github.event_name }}"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Run ID: ${{ github.run_id }}"
+          echo "Run Number: ${{ github.run_number }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Timestamp UTC: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          echo "========================================="
+          
       - name: Verificar variables de entorno
         run: |
           echo "Verificando secrets..."
