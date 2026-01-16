@@ -66,9 +66,13 @@ async function main() {
       ? `\n🔢 Run #${process.env.GITHUB_RUN_NUMBER} (ID: ${process.env.GITHUB_RUN_ID})`
       : '';
     
-    const message = `🟢 NRD MONITOR ACTIVO - ping desde GitHub Actions${runInfo}\n\n📅 ${timestamp}`;
+    const eventType = process.env.GITHUB_EVENT_NAME || 'unknown';
+    const eventInfo = eventType === 'schedule' ? ' (SCHEDULE/CRON)' : eventType === 'workflow_dispatch' ? ' (MANUAL)' : eventType === 'push' ? ' (PUSH)' : '';
+    
+    const message = `🟢 NRD MONITOR ACTIVO - ping desde GitHub Actions${runInfo}\n\n📅 ${timestamp}\n\n⚡ Ejecutado por: ${eventType.toUpperCase()}${eventInfo}`;
     
     console.log('\n📤 Enviando mensaje a Telegram...');
+    console.log(`📝 Evento: ${eventType}`);
     console.log(`📝 Mensaje: ${message.replace(/\n/g, ' ')}`);
     
     const result = await sendTelegramMessage(message);
