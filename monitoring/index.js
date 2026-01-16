@@ -62,6 +62,7 @@ async function main() {
 
   try {
     const timestamp = getReadableTimestamp();
+    const timestampUTC = new Date().toISOString();
     const runInfo = process.env.GITHUB_RUN_ID 
       ? `\n🔢 Run #${process.env.GITHUB_RUN_NUMBER} (ID: ${process.env.GITHUB_RUN_ID})`
       : '';
@@ -69,10 +70,18 @@ async function main() {
     const eventType = process.env.GITHUB_EVENT_NAME || 'unknown';
     const eventInfo = eventType === 'schedule' ? ' (SCHEDULE/CRON)' : eventType === 'workflow_dispatch' ? ' (MANUAL)' : eventType === 'push' ? ' (PUSH)' : '';
     
-    const message = `🟢 NRD MONITOR ACTIVO - ping desde GitHub Actions${runInfo}\n\n📅 ${timestamp}\n\n⚡ Ejecutado por: ${eventType.toUpperCase()}${eventInfo}`;
+    // Cron programado: cada 5 minutos (0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)
+    const expectedInterval = eventType === 'schedule' ? '5 minutos' : 'N/A';
+    const note = eventType === 'schedule' 
+      ? '\n\n⚠️ Nota: GitHub Actions usa "best effort" scheduling - los retrasos son normales' 
+      : '';
+    
+    const message = `🟢 NRD MONITOR ACTIVO - ping desde GitHub Actions${runInfo}\n\n📅 ${timestamp}\n🕐 UTC: ${timestampUTC}\n\n⚡ Ejecutado por: ${eventType.toUpperCase()}${eventInfo}\n⏰ Intervalo esperado: ${expectedInterval}${note}`;
     
     console.log('\n📤 Enviando mensaje a Telegram...');
     console.log(`📝 Evento: ${eventType}`);
+    console.log(`📝 Timestamp UTC: ${timestampUTC}`);
+    console.log(`📝 Intervalo esperado: ${expectedInterval}`);
     console.log(`📝 Mensaje: ${message.replace(/\n/g, ' ')}`);
     
     const result = await sendTelegramMessage(message);
