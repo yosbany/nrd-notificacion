@@ -2,7 +2,7 @@ name: NRD Monitor
 
 on:
   schedule:
-    # Ejecutar cada 1 minuto
+    # Ejecutar cada 1 minuto (nota: GitHub Actions mínimo es 5 min en repos gratuitos)
     - cron: '*/1 * * * *'
   workflow_dispatch:
     # Permitir ejecución manual
@@ -21,6 +21,20 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
+      - name: Verificar variables de entorno
+        run: |
+          echo "Verificando secrets..."
+          if [ -z "${{ secrets.TELEGRAM_BOT_TOKEN }}" ]; then
+            echo "⚠️ TELEGRAM_BOT_TOKEN no está configurado"
+          else
+            echo "✅ TELEGRAM_BOT_TOKEN está configurado"
+          fi
+          if [ -z "${{ secrets.TELEGRAM_CHAT_ID }}" ]; then
+            echo "⚠️ TELEGRAM_CHAT_ID no está configurado"
+          else
+            echo "✅ TELEGRAM_CHAT_ID está configurado"
+          fi
+
       - name: Instalar dependencias
         run: npm install
 
@@ -28,4 +42,7 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
         run: node monitoring/index.js
