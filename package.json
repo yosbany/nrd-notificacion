@@ -1,0 +1,20 @@
+{
+  "name": "nrd-monitor",
+  "version": "1.0.0",
+  "description": "NRD Monitor - Sistema de monitoreo ejecutado en GitHub Actions",
+  "type": "module",
+  "main": "monitoring/index.js",
+  "scripts": {
+    "start": "node monitoring/index.js"
+  },
+  "keywords": [
+    "monitoring",
+    "github-actions",
+    "telegram"
+  ],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
