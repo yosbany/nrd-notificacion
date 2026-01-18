@@ -4,10 +4,10 @@ on:
   push:
     branches: [main]
   schedule:
-    # Ejecutar cada 5 minutos (UTC)
+    # Ejecutar cada 30 minutos (UTC)
     # Formato: minuto hora día mes día-semana
-    # */5 * * * * = cada 5 minutos (0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)
-    - cron: '*/5 * * * *'
+    # */30 * * * * = cada 30 minutos (0, 30)
+    - cron: '*/30 * * * *'
   workflow_dispatch:
     # Permitir ejecución manual
 
@@ -42,7 +42,7 @@ jobs:
           echo ""
           if [ "${{ github.event_name }}" = "schedule" ]; then
             echo "Esta ejecucion fue activada por SCHEDULE (cron)"
-            echo "Se ejecuta automaticamente cada 5 minutos (UTC)"
+            echo "Se ejecuta automaticamente cada 30 minutos (UTC)"
           elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "Esta ejecucion fue activada MANUALMENTE (workflow_dispatch)"
           elif [ "${{ github.event_name }}" = "push" ]; then
