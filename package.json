@@ -1,20 +1,25 @@
 {
-  "name": "nrd-monitor",
+  "name": "nrd-notificacion",
   "version": "1.0.0",
-  "description": "NRD Monitor - Sistema de monitoreo ejecutado en GitHub Actions",
+  "description": "NRD Notificación - Sistema de notificaciones ejecutado en GitHub Actions",
   "type": "module",
-  "main": "monitoring/index.js",
+  "main": "process.js",
   "scripts": {
-    "start": "node monitoring/index.js"
+    "process": "node process.js"
   },
   "keywords": [
-    "monitoring",
+    "notifications",
     "github-actions",
-    "telegram"
+    "fcm",
+    "firebase"
   ],
   "author": "",
   "license": "ISC",
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "jsonwebtoken": "^9.0.2"
   }
 }
